@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tarifs de Déplacement - Voltales</title>
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+    .info {
+      margin: 20px 0;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tarifs de Déplacement Voltales</h1>
+  <p class="info">Entrez votre adresse pour connaître votre zone et vos frais de déplacement :</p>
+  <input type="text" id="address" placeholder="Votre adresse">
+  <button onclick="calculateDistance()">Calculer</button>
+  <p id="result"></p>
+  <div id="map"></div>
+
+  <script>
+    let map;
+    const homeLocation = { lat: 48.94631, lng: -0.16540 };
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: homeLocation,
+        zoom: 10,
+      });
+
+      new google.maps.Marker({
+        position: homeLocation,
+        map,
+        title: "Voltales - Votre électricien",
+      });
+
+      const zones = [
+        { radius: 5000, color: "#1E90FF" },
+        { radius: 15000, color: "#32CD32" },
+        { radius: 30000, color: "#FFD700" },
+        { radius: 50000, color: "#FF8C00" },
+        { radius: 100000, color: "#FF4500" },
+      ];
+
+      zones.forEach(zone => {
+        new google.maps.Circle({
+          strokeColor: zone.color,
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: zone.color,
+          fillOpacity: 0.35,
+          map,
+          center: homeLocation,
+          radius: zone.radius,
+        });
+      });
+    }
+
+    function calculateDistance() {
+      const address = document.getElementById("address").value;
+      if (!address) {
+        document.getElementById("result").textContent = "Veuillez entrer une adresse.";
+        return;
+      }
+
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === "OK") {
+          const destination = results[0].geometry.location;
+          const distanceService = new google.maps.DistanceMatrixService();
+          distanceService.getDistanceMatrix(
+            {
+              origins: [homeLocation],
+              destinations: [destination],
+              travelMode: "DRIVING",
+            },
+            (response, status) => {
+              if (status === "OK") {
+                const distance = response.rows[0].elements[0].distance.value;
+                let zoneMessage;
+
+                if (distance <= 5000) {
+                  zoneMessage = "Zone 1 : 15€ TTC";
+                } else if (distance <= 15000) {
+                  zoneMessage = "Zone 2 : 25€ TTC";
+                } else if (distance <= 30000) {
+                  zoneMessage = "Zone 3 : 40€ TTC";
+                } else if (distance <= 50000) {
+                  zoneMessage = "Zone 4 : 55€ TTC";
+                } else {
+                  zoneMessage = "Zone 5 : 70€ TTC";
+                }
+
+                document.getElementById("result").textContent =
+                  `Distance : ${(distance / 1000).toFixed(2)} km - ${zoneMessage}`;
+              } else {
+                document.getElementById("result").textContent =
+                  "Impossible de calculer la distance.";
+              }
+            }
+          );
+        } else {
+          document.getElementById("result").textContent =
+            "Adresse invalide. Veuillez réessayer.";
+        }
+      });
+    }
+  </script>
+
+  <!-- API Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=TA_CLE_API_ICI&libraries=places&callback=initMap" async defer></script>
+</body>
+</html>
