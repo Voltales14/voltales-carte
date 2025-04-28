@@ -113,7 +113,7 @@
   </script>
 
   <!-- API Google Maps -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDbTC01E0PXysSUfZJUV2RQkvFV4GA-qaA&libraries=places&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=********************-qaA&libraries=places&callback=initMap" async defer></script>
 </body>
 </html>
 
